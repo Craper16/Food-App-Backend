@@ -2,6 +2,7 @@ import { RequestHandler } from 'express';
 import { ErrorResponse } from '../app';
 import { Meal } from '../models/meal';
 import { Order, OrderModel } from '../models/order';
+import { Upgrade } from '../models/upgrade';
 import { User } from '../models/user';
 
 export const getOrders: RequestHandler = async (req, res, next) => {
@@ -21,7 +22,11 @@ export const getOrders: RequestHandler = async (req, res, next) => {
       updatedAt: -1,
     });
 
-    if (orders.map((order) => order.client?._id !== user._id)) {
+    if (
+      orders.map(
+        (order) => order.client?._id.toString() !== user._id.toString()
+      )
+    ) {
       const error: ErrorResponse = {
         message: 'Unauthorized',
         name: 'Unauthorized',
@@ -59,7 +64,7 @@ export const getOrder: RequestHandler = async (req, res, next) => {
       throw error;
     }
 
-    if (order.client?._id !== user._id) {
+    if (order.client?._id.toString() !== user._id.toString()) {
       const error: ErrorResponse = {
         message: 'Unauthorized',
         name: 'Unauthorized',
@@ -76,7 +81,7 @@ export const getOrder: RequestHandler = async (req, res, next) => {
 
 export const addOrder: RequestHandler = async (req, res, next) => {
   try {
-    const { meals, upgrades, amountToPay, comments } = req.body as OrderModel;
+    const { meals, upgrades, comments } = req.body as OrderModel;
 
     const user = await User.findById(req.userId);
 
@@ -98,10 +103,55 @@ export const addOrder: RequestHandler = async (req, res, next) => {
       throw error;
     }
 
+    const mealsToSend = await Meal.find({
+      title: meals.map((meal) => meal.title),
+      description: meals.map((meal) => meal.description),
+      image: meals.map((meal) => meal.image),
+      price: meals.map((meal) => meal.price),
+    });
+
+    const upgradesToSend = await Upgrade.find({
+      title: upgrades.map((upgrade) => upgrade.title),
+      price: upgrades.map((upgrade) => upgrade.price),
+    });
+
+    if (upgradesToSend.length !== upgrades.length) {
+      const error: ErrorResponse = {
+        message:
+          'Invalid upgrades are present, please check your upgrades specifications and try again',
+        name: 'Not found',
+        status: 404,
+      };
+      throw error;
+    }
+
+    if (mealsToSend.length !== meals.length) {
+      const error: ErrorResponse = {
+        message:
+          'Invalid meals are present, please check your meals specifications and try again',
+        name: 'Not found',
+        status: 404,
+      };
+      throw error;
+    }
+
+    let totalMealPayout: number = 0;
+    let totalUpgradePayout: number = 0;
+
+    await mealsToSend.map(
+      (meal) => (totalMealPayout = meal.price + totalMealPayout)
+    );
+
+    await upgradesToSend.map(
+      (upgrade) => (totalUpgradePayout = upgrade.price + totalUpgradePayout)
+    );
+
+    const totalPayAmount = totalMealPayout + totalUpgradePayout;
+
     const order = new Order({
-      meals: meals,
-      upgrades: upgrades,
-      amountToPay: amountToPay,
+      meals: mealsToSend,
+      upgrades: upgradesToSend,
+      amountToPay: totalPayAmount,
       comments: comments,
       client: req.userId,
       isDelivered: false,
@@ -109,7 +159,7 @@ export const addOrder: RequestHandler = async (req, res, next) => {
 
     const result = await order.save();
 
-    res
+    return res
       .status(201)
       .json({ message: 'Order added successfully', order: result });
   } catch (error) {

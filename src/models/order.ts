@@ -3,9 +3,9 @@ import { MealModel } from './meal';
 import { UpgradeModel } from './upgrade';
 
 export interface OrderModel {
-  meals: { meal: MealModel; quantity: number }[];
+  meals: MealModel[];
   amountToPay: number;
-  upgrades: { upgrade: UpgradeModel; quantity: number }[];
+  upgrades: UpgradeModel[];
   comments: string;
   isDelivered: boolean;
   client: Types.ObjectId | undefined;
@@ -15,28 +15,11 @@ const orderSchema = new Schema<OrderModel>(
   {
     meals: [
       {
-        meal: {
-          type: Object,
-          required: true,
-        },
-        quantity: {
-          type: Number,
-          required: true,
-        },
+        type: Object,
+        required: true,
       },
     ],
-    upgrades: [
-      {
-        upgrade: {
-          type: Object,
-          required: true,
-        },
-        quantity: {
-          type: Number,
-          required: true,
-        },
-      },
-    ],
+    upgrades: [{ type: Object, required: true }],
     amountToPay: {
       type: Number,
       required: true,
