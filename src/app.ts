@@ -14,6 +14,7 @@ import authRoutes from './routes/auth';
 import categoriesRoutes from './routes/categories';
 import mealsRoutes from './routes/meals';
 import upgradesRoutes from './routes/upgrades';
+import ordersRoutes from './routes/orders';
 
 export interface ErrorResponse extends Error {
   status: number;
@@ -30,6 +31,7 @@ app.use('/auth', authRoutes);
 app.use('/categories', categoriesRoutes);
 app.use('/meals', mealsRoutes);
 app.use('/upgrades', upgradesRoutes);
+app.use('/orders', ordersRoutes);
 
 app.use('*', (req: Request, res: Response) => {
   return res.status(404).json({ message: 'Endpoint not found' });
