@@ -1,7 +1,7 @@
 import { Schema, model, Types } from 'mongoose';
 import { MealModel } from './meal';
 
-interface CategoryModel {
+export interface CategoryModel {
   title: string;
   image: string;
   meals: MealModel[];

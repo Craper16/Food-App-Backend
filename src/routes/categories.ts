@@ -1,16 +1,22 @@
 import { Router } from 'express';
-import { createCategory } from '../controllers/categories';
+import {
+  createCategory,
+  deleteCategory,
+  getCategories,
+  getCategory,
+  updateCategory,
+} from '../controllers/categories';
 
 const router = Router();
 
-router.get('/', () => {});
+router.get('/', getCategories);
 
-router.get('/:categoryId');
+router.get('/:categoryId', getCategory);
 
 router.post('/create-category', createCategory);
 
-router.delete('/:categoryId');
+router.delete('/:categoryId', deleteCategory);
 
-router.put('/:categoryId');
+router.put('/:categoryId', updateCategory);
 
 export default router;

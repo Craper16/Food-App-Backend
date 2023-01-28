@@ -1,16 +1,22 @@
 import { Router } from 'express';
-import { createMeal } from '../controllers/meals';
+import {
+  createMeal,
+  deleteMeal,
+  getMeal,
+  getMeals,
+  updateMeal,
+} from '../controllers/meals';
 
 const router = Router();
 
-router.get('/');
+router.get('/', getMeals);
 
-router.get('/:mealId');
+router.get('/:mealId', getMeal);
 
 router.post('/:categoryId/create-meal', createMeal);
 
-router.put('/:mealId');
+router.put('/:mealId', updateMeal);
 
-router.delete('/:mealIdd');
+router.delete('/:mealIdd', deleteMeal);
 
 export default router;
