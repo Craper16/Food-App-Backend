@@ -1,9 +1,11 @@
-import { Schema, model } from 'mongoose';
+import { Schema, model, ObjectId, Types } from 'mongoose';
 import { MealModel } from './meal';
 
 export interface OrderModel {
   meals: { meal: MealModel; quantity: number }[];
+  amountToPay: number;
   isDelivered: boolean;
+  client: ObjectId;
 }
 
 const orderSchema = new Schema<OrderModel>(
@@ -20,6 +22,15 @@ const orderSchema = new Schema<OrderModel>(
         },
       },
     ],
+    amountToPay: {
+      type: Number,
+      required: true,
+    },
+    client: {
+      type: Types.ObjectId,
+      required: true,
+      ref: 'User',
+    },
     isDelivered: {
       type: Boolean,
     },

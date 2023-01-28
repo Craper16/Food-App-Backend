@@ -177,3 +177,105 @@ export const refreshAccessToken: RequestHandler = async (req, res, next) => {
     next(error);
   }
 };
+
+export const getUserData: RequestHandler = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.userId);
+
+    if (!user) {
+      const error: ErrorResponse = {
+        message: 'User not found unauthorized',
+        name: 'Not found',
+        status: 404,
+      };
+      throw error;
+    }
+
+    const {
+      email,
+      firstName,
+      lastName,
+      phoneNumber,
+      address,
+      orders,
+      lifetimeAmountPaid,
+    } = user;
+
+    res.status(200).json({
+      email: email,
+      firstName: firstName,
+      lastName: lastName,
+      phoneNumber: phoneNumber,
+      address: address,
+      orders: orders,
+      lifetimeAmountPaid: lifetimeAmountPaid,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getUserOrders: RequestHandler = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.userId);
+
+    if (!user) {
+      const error: ErrorResponse = {
+        message: 'User not found',
+        name: 'Not found',
+        status: 404,
+      };
+      throw error;
+    }
+
+    const { orders } = user;
+
+    res.status(200).json({ orders: orders });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const changeUserPassword: RequestHandler = async (req, res, next) => {
+  try {
+    const { oldPassword, newPassword } = req.body as {
+      oldPassword: string;
+      newPassword: string;
+    };
+
+    const user = await User.findById(req.userId);
+
+    if (!user) {
+      const error: ErrorResponse = {
+        message: 'User not found',
+        name: 'Not found',
+        status: 404,
+      };
+      throw error;
+    }
+
+    const isEqual = await compare(oldPassword, user.password);
+
+    if (!isEqual) {
+      const error: ErrorResponse = {
+        message: 'Incorrect password entered',
+        name: 'Forbidden',
+        status: 403,
+      };
+      throw error;
+    }
+
+    const hashedPassword = await hash(newPassword, 12);
+
+    user.password = hashedPassword;
+
+    const result = await user.save();
+
+    res.status(200).json({
+      message: 'Password changed successfully',
+      user: result.email,
+    });
+  } catch (error) {
+    next(error);
+  }
+};

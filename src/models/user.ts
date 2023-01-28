@@ -1,4 +1,4 @@
-import { Schema, model } from 'mongoose';
+import { Schema, model, ObjectId, Types } from 'mongoose';
 
 export interface UserModel {
   email: string;
@@ -6,6 +6,9 @@ export interface UserModel {
   firstName: string;
   lastName: string;
   phoneNumber: number;
+  orders: ObjectId[];
+  lifetimeAmountPaid: number;
+  address: string;
 }
 
 const userSchema = new Schema<UserModel>({
@@ -28,6 +31,18 @@ const userSchema = new Schema<UserModel>({
   phoneNumber: {
     type: Number,
     required: true,
+  },
+  address: {
+    type: String,
+  },
+  orders: [
+    {
+      type: Types.ObjectId,
+      ref: 'Order',
+    },
+  ],
+  lifetimeAmountPaid: {
+    type: Number,
   },
 });
 

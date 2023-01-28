@@ -21,6 +21,7 @@ export const isAuth: RequestHandler = async (req, res, next) => {
 
     try {
       decodedToken = await verify(access_token, process.env.SECRET as string);
+      console.log(decodedToken);
     } catch (error) {
       const { message, name } = error as Error;
       const thrownError: ErrorResponse = {
@@ -40,9 +41,9 @@ export const isAuth: RequestHandler = async (req, res, next) => {
       throw error;
     }
 
-    const { verifiedUserId } = decodedToken as JwtPayload;
+    const { userId } = decodedToken as JwtPayload;
 
-    req.userId = verifiedUserId;
+    req.userId = userId;
     next();
   } catch (error) {
     next(error);
