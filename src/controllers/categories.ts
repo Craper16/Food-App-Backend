@@ -1,10 +1,11 @@
 import { RequestHandler } from 'express';
+import { ErrorResponse } from '../app';
 import { Category, CategoryModel } from '../models/category';
 
 export const getCategories: RequestHandler = async (req, res, next) => {
   try {
     const categories = await Category.find();
-    res.status(200).json({ categories: categories });
+    return res.status(200).json({ categories: categories });
   } catch (error) {
     next(error);
   }
@@ -17,11 +18,15 @@ export const getCategory: RequestHandler = async (req, res, next) => {
     const category = await Category.findById(categoryId);
 
     if (!category) {
-      const error = new Error('Category not found');
+      const error: ErrorResponse = {
+        message: 'Category not found',
+        name: 'Not Found',
+        status: 404,
+      };
       throw error;
     }
 
-    res.status(200).json({ category: category });
+    return res.status(200).json({ category: category });
   } catch (error) {
     next(error);
   }
@@ -34,7 +39,11 @@ export const createCategory: RequestHandler = async (req, res, next) => {
     let category = await Category.findOne({ title: title });
 
     if (category) {
-      const error = new Error('Category already exists');
+      const error: ErrorResponse = {
+        message: 'Category with this title already exists',
+        name: 'Already Exists',
+        status: 402,
+      };
       throw error;
     }
 
@@ -45,7 +54,7 @@ export const createCategory: RequestHandler = async (req, res, next) => {
 
     await category.save();
 
-    res.status(201).json({ category: category });
+    return res.status(201).json({ category: category });
   } catch (error: any) {
     next(error);
   }
@@ -59,7 +68,11 @@ export const updateCategory: RequestHandler = async (req, res, next) => {
     const category = await Category.findById(categoryId);
 
     if (!category) {
-      const error = new Error('Category not found');
+      const error: ErrorResponse = {
+        message: 'Category not found',
+        name: 'Not found',
+        status: 404,
+      };
       throw error;
     }
 
@@ -68,7 +81,7 @@ export const updateCategory: RequestHandler = async (req, res, next) => {
 
     const result = await category.save();
 
-    res.status(200).json({ category: result });
+    return res.status(200).json({ category: result });
   } catch (error) {
     next(error);
   }
@@ -81,10 +94,15 @@ export const deleteCategory: RequestHandler = async (req, res, next) => {
     const category = await Category.findByIdAndRemove(categoryId);
 
     if (!category) {
-      const error = new Error('Category not found');
+      const error: ErrorResponse = {
+        message: 'Category not found',
+        name: 'Not found',
+        status: 404,
+      };
       throw error;
     }
-    res
+
+    return res
       .status(200)
       .json({ message: 'Successfully removed category', category: category });
   } catch (error) {

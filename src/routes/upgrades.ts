@@ -1,16 +1,23 @@
 import { Router } from 'express';
-import { createUpgrade } from '../controllers/upgrades';
+import {
+  createUpgrade,
+  deleteUpgrade,
+  getUpgrade,
+  getUpgrades,
+  updateUpgrade,
+} from '../controllers/upgrades';
+import { isAuth } from '../middlewares/isAuth';
 
 const router = Router();
 
-router.get('/');
+router.get('/', getUpgrades);
 
-router.get('/:upgradeId');
+router.get('/:upgradeId', getUpgrade);
 
-router.post('/create-upgrade', createUpgrade);
+router.post('/create-upgrade', isAuth, createUpgrade);
 
-router.put('/:upgradeId');
+router.put('/:upgradeId', isAuth, updateUpgrade);
 
-router.delete('/:upgradeId');
+router.delete('/:upgradeId', isAuth, deleteUpgrade);
 
 export default router;
