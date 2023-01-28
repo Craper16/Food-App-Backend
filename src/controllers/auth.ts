@@ -201,7 +201,7 @@ export const getUserData: RequestHandler = async (req, res, next) => {
       lifetimeAmountPaid,
     } = user;
 
-    res.status(200).json({
+    return res.status(200).json({
       email: email,
       firstName: firstName,
       lastName: lastName,
@@ -230,7 +230,7 @@ export const getUserOrders: RequestHandler = async (req, res, next) => {
 
     const { orders } = user;
 
-    res.status(200).json({ orders: orders });
+    return res.status(200).json({ orders: orders });
   } catch (error) {
     next(error);
   }
@@ -271,7 +271,7 @@ export const changeUserPassword: RequestHandler = async (req, res, next) => {
 
     const result = await user.save();
 
-    res.status(200).json({
+    return res.status(200).json({
       message: 'Password changed successfully',
       user: result.email,
     });

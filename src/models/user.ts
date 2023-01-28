@@ -6,7 +6,7 @@ export interface UserModel {
   firstName: string;
   lastName: string;
   phoneNumber: number;
-  orders: ObjectId[];
+  orders: Types.ObjectId[];
   lifetimeAmountPaid: number;
   address: string;
 }
