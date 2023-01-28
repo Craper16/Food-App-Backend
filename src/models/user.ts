@@ -6,8 +6,6 @@ export interface UserModel {
   firstName: string;
   lastName: string;
   phoneNumber: number;
-  orders: Types.ObjectId[];
-  lifetimeAmountPaid: number;
   address: string;
 }
 
@@ -34,15 +32,6 @@ const userSchema = new Schema<UserModel>({
   },
   address: {
     type: String,
-  },
-  orders: [
-    {
-      type: Types.ObjectId,
-      ref: 'Order',
-    },
-  ],
-  lifetimeAmountPaid: {
-    type: Number,
   },
 });
 

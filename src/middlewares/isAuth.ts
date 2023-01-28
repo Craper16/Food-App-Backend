@@ -21,7 +21,6 @@ export const isAuth: RequestHandler = async (req, res, next) => {
 
     try {
       decodedToken = await verify(access_token, process.env.SECRET as string);
-      console.log(decodedToken);
     } catch (error) {
       const { message, name } = error as Error;
       const thrownError: ErrorResponse = {

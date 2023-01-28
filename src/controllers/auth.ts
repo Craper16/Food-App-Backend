@@ -1,8 +1,8 @@
-import e, { RequestHandler } from 'express';
+import { RequestHandler } from 'express';
 import { User, UserModel } from '../models/user';
 
 import { hash, compare } from 'bcryptjs';
-import { Jwt, JwtPayload, sign, verify } from 'jsonwebtoken';
+import { JwtPayload, sign, verify } from 'jsonwebtoken';
 import { ErrorResponse } from '../app';
 
 export const signup: RequestHandler = async (req, res, next) => {
@@ -191,15 +191,7 @@ export const getUserData: RequestHandler = async (req, res, next) => {
       throw error;
     }
 
-    const {
-      email,
-      firstName,
-      lastName,
-      phoneNumber,
-      address,
-      orders,
-      lifetimeAmountPaid,
-    } = user;
+    const { email, firstName, lastName, phoneNumber, address } = user;
 
     return res.status(200).json({
       email: email,
@@ -207,30 +199,7 @@ export const getUserData: RequestHandler = async (req, res, next) => {
       lastName: lastName,
       phoneNumber: phoneNumber,
       address: address,
-      orders: orders,
-      lifetimeAmountPaid: lifetimeAmountPaid,
     });
-  } catch (error) {
-    next(error);
-  }
-};
-
-export const getUserOrders: RequestHandler = async (req, res, next) => {
-  try {
-    const user = await User.findById(req.userId);
-
-    if (!user) {
-      const error: ErrorResponse = {
-        message: 'User not found',
-        name: 'Not found',
-        status: 404,
-      };
-      throw error;
-    }
-
-    const { orders } = user;
-
-    return res.status(200).json({ orders: orders });
   } catch (error) {
     next(error);
   }

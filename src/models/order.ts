@@ -6,6 +6,7 @@ export interface OrderModel {
   meals: { meal: MealModel; quantity: number }[];
   amountToPay: number;
   upgrades: { upgrade: UpgradeModel; quantity: number }[];
+  comments: string;
   isDelivered: boolean;
   client: Types.ObjectId | undefined;
 }
@@ -39,6 +40,9 @@ const orderSchema = new Schema<OrderModel>(
     amountToPay: {
       type: Number,
       required: true,
+    },
+    comments: {
+      type: String,
     },
     client: {
       type: Types.ObjectId,

@@ -1,12 +1,12 @@
 import { Router } from 'express';
-import { addOrder } from '../controllers/orders';
+import { addOrder, getOrder, getOrders } from '../controllers/orders';
 import { isAuth } from '../middlewares/isAuth';
 
 const router = Router();
 
-router.get('/');
+router.get('/', isAuth, getOrders);
 
-router.get('/:orderId');
+router.get('/:orderId', isAuth, getOrder);
 
 router.post('/add-order', isAuth, addOrder);
 

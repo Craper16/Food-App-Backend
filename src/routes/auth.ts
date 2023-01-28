@@ -2,7 +2,6 @@ import { Router } from 'express';
 import {
   changeUserPassword,
   getUserData,
-  getUserOrders,
   refreshAccessToken,
   signin,
   signup,
@@ -16,8 +15,6 @@ router.post('/signup', signup);
 router.post('/signin', signin);
 
 router.get('/me', isAuth, getUserData);
-
-router.get('/me/orders', isAuth, getUserOrders);
 
 router.put('/me/change-password', isAuth, changeUserPassword);
 

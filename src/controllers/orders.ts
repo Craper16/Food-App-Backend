@@ -1,12 +1,34 @@
 import { RequestHandler } from 'express';
 import { ErrorResponse } from '../app';
+import { Meal } from '../models/meal';
 import { Order, OrderModel } from '../models/order';
 import { User } from '../models/user';
 
 export const getOrders: RequestHandler = async (req, res, next) => {
   try {
-    const orders = await Order.find();
+    const user = await User.findById(req.userId);
 
+    if (!user) {
+      const error: ErrorResponse = {
+        message: 'Unauthorized',
+        name: 'Unauthorized',
+        status: 401,
+      };
+      throw error;
+    }
+
+    const orders = await Order.find({ client: req.userId }).sort({
+      updatedAt: -1,
+    });
+
+    if (orders.map((order) => order.client?._id !== user._id)) {
+      const error: ErrorResponse = {
+        message: 'Unauthorized',
+        name: 'Unauthorized',
+        status: 401,
+      };
+      throw error;
+    }
     return res.status(200).json({ orders: orders });
   } catch (error) {
     next(error);
@@ -37,7 +59,7 @@ export const getOrder: RequestHandler = async (req, res, next) => {
       throw error;
     }
 
-    if (user._id !== order.client) {
+    if (order.client?._id !== user._id) {
       const error: ErrorResponse = {
         message: 'Unauthorized',
         name: 'Unauthorized',
@@ -54,7 +76,7 @@ export const getOrder: RequestHandler = async (req, res, next) => {
 
 export const addOrder: RequestHandler = async (req, res, next) => {
   try {
-    const { meals, upgrades, amountToPay } = req.body as OrderModel;
+    const { meals, upgrades, amountToPay, comments } = req.body as OrderModel;
 
     const user = await User.findById(req.userId);
 
@@ -80,6 +102,7 @@ export const addOrder: RequestHandler = async (req, res, next) => {
       meals: meals,
       upgrades: upgrades,
       amountToPay: amountToPay,
+      comments: comments,
       client: req.userId,
       isDelivered: false,
     });
