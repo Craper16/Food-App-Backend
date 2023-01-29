@@ -21,6 +21,17 @@ export const signup: RequestHandler = async (req, res, next) => {
       throw error;
     }
 
+    const users = await User.find({ phoneNumber: phoneNumber });
+
+    if (users) {
+      const error: ErrorResponse = {
+        message: 'An account with this phone number already exists',
+        name: 'Already exists',
+        status: 403,
+      };
+      throw error;
+    }
+
     const hashedPassword: string = await hash(password, 12);
 
     user = new User({
