@@ -15,13 +15,11 @@ import categoriesRoutes from './routes/categories';
 import mealsRoutes from './routes/meals';
 import upgradesRoutes from './routes/upgrades';
 import ordersRoutes from './routes/orders';
-import { ValidationError } from 'express-validator/src/base';
-import { Result } from 'express-validator';
 
 export interface ErrorResponse extends Error {
   status: number;
   data?: any;
-  errors?: { msg: any; value: any; param: any }[];
+  errors?: { msg: any; value: any; param: any };
 }
 
 const app = express();

@@ -7,10 +7,11 @@ import {
   signup,
 } from '../controllers/auth';
 import { isAuth } from '../middlewares/isAuth';
+import { signUpValidation } from '../validations/authValidations';
 
 const router = Router();
 
-router.post('/signup', signup);
+router.post('/signup', signUpValidation, signup);
 
 router.post('/signin', signin);
 

@@ -17,23 +17,22 @@ const errorSignUpFormatter = ({ msg, param, value }: any) => {
 
 export const signup: RequestHandler = async (req, res, next) => {
   try {
-    // const errors = validationResult(req).formatWith(errorSignUpFormatter);
+    const errors = validationResult(req).formatWith(errorSignUpFormatter);
 
-    // if (!errors.isEmpty()) {
-    //   console.log('This error is throwing but msg is wrong?')
-    //   const error: ErrorResponse[] = [
-    //     {
-    //       errors: errors.array(),
-    //       message: errors
-    //         .array()
-    //         .map((error) => error.msg)
-    //         .toString(),
-    //       name: 'Validation Error',
-    //       status: 422,
-    //     },
-    //   ];
-    //   throw error;
-    // }
+    console.log(errors);
+
+    if (!errors.isEmpty()) {
+      const error: ErrorResponse = {
+        message: errors
+          .array()
+          .map((error) => error.msg)
+          .toString(),
+        name: 'Validation Error',
+        status: 422,
+      };
+      console.log(error);
+      throw error;
+    }
     const { email, password, firstName, lastName, phoneNumber } =
       req.body as UserModel;
 
