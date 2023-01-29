@@ -7,13 +7,16 @@ import {
   signup,
 } from '../controllers/auth';
 import { isAuth } from '../middlewares/isAuth';
-import { signUpValidation } from '../validations/authValidations';
+import {
+  signInValidation,
+  signUpValidation,
+} from '../validations/authValidations';
 
 const router = Router();
 
 router.post('/signup', signUpValidation, signup);
 
-router.post('/signin', signin);
+router.post('/signin', signInValidation, signin);
 
 router.get('/me', isAuth, getUserData);
 

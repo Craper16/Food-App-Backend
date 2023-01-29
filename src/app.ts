@@ -19,7 +19,6 @@ import ordersRoutes from './routes/orders';
 export interface ErrorResponse extends Error {
   status: number;
   data?: any;
-  errors?: { msg: any; value: any; param: any };
 }
 
 const app = express();

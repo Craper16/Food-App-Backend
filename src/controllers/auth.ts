@@ -7,30 +7,26 @@ import { hash, compare } from 'bcryptjs';
 import { JwtPayload, sign, verify } from 'jsonwebtoken';
 import { ErrorResponse } from '../app';
 
-const errorSignUpFormatter = ({ msg, param, value }: any) => {
+const errorFormatter = ({ msg, param, value }: any) => {
   return {
     msg,
-    param,
-    value,
   };
 };
 
 export const signup: RequestHandler = async (req, res, next) => {
   try {
-    const errors = validationResult(req).formatWith(errorSignUpFormatter);
-
-    console.log(errors);
+    const errors = validationResult(req).formatWith(errorFormatter);
 
     if (!errors.isEmpty()) {
       const error: ErrorResponse = {
         message: errors
           .array()
-          .map((error) => error.msg)
-          .toString(),
+          .map((error) => ' ' + error.msg)
+          .toString()
+          .trim(),
         name: 'Validation Error',
         status: 422,
       };
-      console.log(error);
       throw error;
     }
     const { email, password, firstName, lastName, phoneNumber } =
@@ -108,6 +104,21 @@ export const signup: RequestHandler = async (req, res, next) => {
 
 export const signin: RequestHandler = async (req, res, next) => {
   try {
+    const errors = validationResult(req).formatWith(errorFormatter);
+
+    if (!errors.isEmpty()) {
+      const error: ErrorResponse = {
+        message: errors
+          .array()
+          .map((error) => ' ' + error.msg)
+          .toString()
+          .trim(),
+        name: 'Validation Error',
+        status: 422,
+      };
+      throw error;
+    }
+
     const { email, password } = req.body as UserModel;
     const user = await User.findOne({ email: email });
 
