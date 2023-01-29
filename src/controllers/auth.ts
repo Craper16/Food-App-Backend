@@ -1,12 +1,37 @@
 import { RequestHandler } from 'express';
 import { User, UserModel } from '../models/user';
 
+import { validationResult } from 'express-validator';
+
 import { hash, compare } from 'bcryptjs';
 import { JwtPayload, sign, verify } from 'jsonwebtoken';
 import { ErrorResponse } from '../app';
+import { ValidationError } from 'express-validator/src/base';
+
+const errorSignUpFormatter = ({ msg, param, value }: any) => {
+  return {
+    msg,
+    param,
+    value,
+  };
+};
 
 export const signup: RequestHandler = async (req, res, next) => {
   try {
+    const errors = validationResult(req).formatWith(errorSignUpFormatter);
+
+    if (!errors.isEmpty()) {
+      const error: ErrorResponse = {
+        errors: errors.array(),
+        message: errors
+          .array()
+          .map((error) => error.msg)
+          .toString(),
+        name: 'Validation Error',
+        status: 402,
+      };
+      throw error;
+    }
     const { email, password, firstName, lastName, phoneNumber } =
       req.body as UserModel;
 
