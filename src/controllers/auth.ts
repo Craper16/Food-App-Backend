@@ -6,7 +6,6 @@ import { validationResult } from 'express-validator';
 import { hash, compare } from 'bcryptjs';
 import { JwtPayload, sign, verify } from 'jsonwebtoken';
 import { ErrorResponse } from '../app';
-import { ValidationError } from 'express-validator/src/base';
 
 const errorSignUpFormatter = ({ msg, param, value }: any) => {
   return {
@@ -18,20 +17,23 @@ const errorSignUpFormatter = ({ msg, param, value }: any) => {
 
 export const signup: RequestHandler = async (req, res, next) => {
   try {
-    const errors = validationResult(req).formatWith(errorSignUpFormatter);
+    // const errors = validationResult(req).formatWith(errorSignUpFormatter);
 
-    if (!errors.isEmpty()) {
-      const error: ErrorResponse = {
-        errors: errors.array(),
-        message: errors
-          .array()
-          .map((error) => error.msg)
-          .toString(),
-        name: 'Validation Error',
-        status: 402,
-      };
-      throw error;
-    }
+    // if (!errors.isEmpty()) {
+    //   console.log('This error is throwing but msg is wrong?')
+    //   const error: ErrorResponse[] = [
+    //     {
+    //       errors: errors.array(),
+    //       message: errors
+    //         .array()
+    //         .map((error) => error.msg)
+    //         .toString(),
+    //       name: 'Validation Error',
+    //       status: 422,
+    //     },
+    //   ];
+    //   throw error;
+    // }
     const { email, password, firstName, lastName, phoneNumber } =
       req.body as UserModel;
 
@@ -48,7 +50,9 @@ export const signup: RequestHandler = async (req, res, next) => {
 
     const users = await User.find({ phoneNumber: phoneNumber });
 
-    if (users) {
+    console.log(users);
+
+    if (users.length !== 0) {
       const error: ErrorResponse = {
         message: 'An account with this phone number already exists',
         name: 'Already exists',
