@@ -10,9 +10,9 @@ import { isAuth } from '../middlewares/isAuth';
 
 const router = Router();
 
-router.get('/', getCategories);
+router.get('/', isAuth, getCategories);
 
-router.get('/:categoryId', getCategory);
+router.get('/:categoryId', isAuth, getCategory);
 
 router.post('/create-category', isAuth, createCategory);
 

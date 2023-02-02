@@ -5,7 +5,9 @@ export const signUpValidation = [
     .isEmail()
     .withMessage('Invalid email')
     .notEmpty()
-    .withMessage('Email must not be empty'),
+    .withMessage('Email must not be empty')
+    .toLowerCase()
+    .trim(),
   check('password')
     .isString()
     .withMessage('Password must be a string')
@@ -23,14 +25,18 @@ export const signUpValidation = [
     .notEmpty()
     .withMessage('First name must not be empty')
     .isLength({ min: 3, max: 30 })
-    .withMessage('First name must be between 3 and 30 characters'),
+    .withMessage('First name must be between 3 and 30 characters')
+    .trim()
+    .toLowerCase(),
   check('lastName')
     .isString()
     .withMessage('Last name must be a string')
     .notEmpty()
     .withMessage('Last name must not be empty')
     .isLength({ min: 3, max: 30 })
-    .withMessage('Last name must be between 3 and 30 characters'),
+    .withMessage('Last name must be between 3 and 30 characters')
+    .trim()
+    .toLowerCase(),
   check('phoneNumber')
     .isNumeric()
     .withMessage('Phone number must be a number')
@@ -45,7 +51,9 @@ export const signInValidation = [
     .isEmail()
     .withMessage('Invalid email entered')
     .notEmpty()
-    .withMessage('Email must not be empty'),
+    .withMessage('Email must not be empty')
+    .toLowerCase()
+    .trim(),
   check('password')
     .isString()
     .withMessage('Password must be a string')

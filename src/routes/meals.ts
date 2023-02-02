@@ -10,9 +10,9 @@ import { isAuth } from '../middlewares/isAuth';
 
 const router = Router();
 
-router.get('/', getMeals);
+router.get('/', isAuth, getMeals);
 
-router.get('/:mealId', getMeal);
+router.get('/:mealId', isAuth, getMeal);
 
 router.post('/:categoryId/create-meal', isAuth, createMeal);
 

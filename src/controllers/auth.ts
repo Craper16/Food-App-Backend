@@ -3,6 +3,8 @@ import { User, UserModel } from '../models/user';
 
 import { validationResult } from 'express-validator';
 
+import { validate } from 'deep-email-validator';
+
 import { hash, compare } from 'bcryptjs';
 import { JwtPayload, sign, verify } from 'jsonwebtoken';
 import { ErrorResponse } from '../app';
@@ -11,6 +13,10 @@ const errorFormatter = ({ msg, param, value }: any) => {
   return {
     msg,
   };
+};
+
+const isEmailValid = async (email: string) => {
+  return validate(email);
 };
 
 export const signup: RequestHandler = async (req, res, next) => {
@@ -43,9 +49,8 @@ export const signup: RequestHandler = async (req, res, next) => {
       throw error;
     }
 
+    console.log(email);
     const users = await User.find({ phoneNumber: phoneNumber });
-
-    console.log(users);
 
     if (users.length !== 0) {
       const error: ErrorResponse = {
