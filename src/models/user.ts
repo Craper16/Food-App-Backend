@@ -9,6 +9,13 @@ export interface UserModel {
   address: string;
 }
 
+export interface UpdateUserModel {
+  firstName: string;
+  lastName: string;
+  phoneNumber: number;
+  address: string;
+}
+
 const userSchema = new Schema<UserModel>({
   email: {
     type: String,

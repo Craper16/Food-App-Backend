@@ -5,6 +5,7 @@ import {
   refreshAccessToken,
   signin,
   signup,
+  updateUser,
 } from '../controllers/auth';
 import { isAuth } from '../middlewares/isAuth';
 import {
@@ -23,5 +24,7 @@ router.get('/me', isAuth, getUserData);
 router.put('/me/change-password', isAuth, changeUserPassword);
 
 router.post('/refresh', refreshAccessToken);
+
+router.put('/update-user', isAuth, updateUser);
 
 export default router;

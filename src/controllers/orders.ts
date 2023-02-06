@@ -1,4 +1,5 @@
 import { RequestHandler } from 'express';
+import mongoose, { Types } from 'mongoose';
 import { ErrorResponse } from '../app';
 import { Meal } from '../models/meal';
 import { Order, OrderModel } from '../models/order';
@@ -60,6 +61,26 @@ export const addOrder: RequestHandler = async (req, res, next) => {
   try {
     const { meals, upgrades, comments } = req.body as OrderModel;
 
+    const user = await User.findById(req.userId);
+
+    if (!user) {
+      const error: ErrorResponse = {
+        message: 'User not found',
+        name: 'Not found',
+        status: 404,
+      };
+      throw error;
+    }
+
+    if (!user.address) {
+      const error: ErrorResponse = {
+        message: 'Please provide your address before ordering',
+        name: 'No address',
+        status: 403,
+      };
+      throw error;
+    }
+
     if (meals.length === 0) {
       const error: ErrorResponse = {
         message: 'No meals selected, please select a meal before adding order',
@@ -69,54 +90,34 @@ export const addOrder: RequestHandler = async (req, res, next) => {
       throw error;
     }
 
-    const mealsToSend = await Meal.find({
-      title: meals.map((meal) => meal.title),
-      description: meals.map((meal) => meal.description),
-      image: meals.map((meal) => meal.image),
-      price: meals.map((meal) => meal.price),
+    meals.map((meal) => {
+      meal.title = meal.title;
+      meal.price = meal.price;
+      meal.image = meal.image;
+      meal.description = meal.description;
+      meal._id = new mongoose.Types.ObjectId(meal._id);
     });
 
-    const upgradesToSend = await Upgrade.find({
-      title: upgrades.map((upgrade) => upgrade.title),
-      price: upgrades.map((upgrade) => upgrade.price),
+    upgrades.map((upgrade) => {
+      upgrade.price = upgrade.price;
+      upgrade.title = upgrade.title;
+      upgrade._id = new Types.ObjectId(upgrade._id);
     });
-
-    if (upgradesToSend.length !== upgrades.length) {
-      const error: ErrorResponse = {
-        message:
-          'Invalid upgrades are present, please check your upgrades specifications and try again',
-        name: 'Not found',
-        status: 404,
-      };
-      throw error;
-    }
-
-    if (mealsToSend.length !== meals.length) {
-      const error: ErrorResponse = {
-        message:
-          'Invalid meals are present, please check your meals specifications and try again',
-        name: 'Not found',
-        status: 404,
-      };
-      throw error;
-    }
 
     let totalMealPayout: number = 0;
     let totalUpgradePayout: number = 0;
 
-    await mealsToSend.map(
-      (meal) => (totalMealPayout = meal.price + totalMealPayout)
-    );
+    await meals.map((meal) => (totalMealPayout = meal.price + totalMealPayout));
 
-    await upgradesToSend.map(
+    await upgrades.map(
       (upgrade) => (totalUpgradePayout = upgrade.price + totalUpgradePayout)
     );
 
     const totalPayAmount = totalMealPayout + totalUpgradePayout;
 
     const order = new Order({
-      meals: mealsToSend,
-      upgrades: upgradesToSend,
+      meals: meals,
+      upgrades: upgrades,
       amountToPay: totalPayAmount,
       comments: comments,
       client: req.userId,

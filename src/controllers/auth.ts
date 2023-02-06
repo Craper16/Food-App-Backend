@@ -1,9 +1,7 @@
 import { RequestHandler } from 'express';
-import { User, UserModel } from '../models/user';
+import { UpdateUserModel, User, UserModel } from '../models/user';
 
 import { validationResult } from 'express-validator';
-
-import { validate } from 'deep-email-validator';
 
 import { hash, compare } from 'bcryptjs';
 import { JwtPayload, sign, verify } from 'jsonwebtoken';
@@ -13,10 +11,6 @@ const errorFormatter = ({ msg, param, value }: any) => {
   return {
     msg,
   };
-};
-
-const isEmailValid = async (email: string) => {
-  return validate(email);
 };
 
 export const signup: RequestHandler = async (req, res, next) => {
@@ -298,6 +292,54 @@ export const changeUserPassword: RequestHandler = async (req, res, next) => {
     return res.status(200).json({
       message: 'Password changed successfully',
       user: result.email,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateUser: RequestHandler = async (req, res, next) => {
+  try {
+    const errors = validationResult(req).formatWith(errorFormatter);
+
+    if (!errors.isEmpty()) {
+      const error: ErrorResponse = {
+        message: errors
+          .array()
+          .map((error) => ' ' + error.msg)
+          .toString()
+          .trim(),
+        name: 'Validation Error',
+        status: 422,
+      };
+      throw error;
+    }
+
+    const { firstName, lastName, phoneNumber, address } =
+      req.body as UpdateUserModel;
+    const user = await User.findById(req.userId);
+
+    if (!user) {
+      const error: ErrorResponse = {
+        message: 'User not found',
+        name: 'Not found',
+        status: 404,
+      };
+      throw error;
+    }
+
+    user.firstName = firstName;
+    user.lastName = lastName;
+    user.phoneNumber = phoneNumber;
+    user.address = address;
+    const result = await user.save();
+
+    return res.status(200).json({
+      email: result.email,
+      firstName: result.firstName,
+      lastName: result.lastName,
+      phoneNumber: result.phoneNumber,
+      address: result.address,
     });
   } catch (error) {
     next(error);

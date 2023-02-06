@@ -1,8 +1,9 @@
-import { Schema, model } from 'mongoose';
+import { Schema, model, Types } from 'mongoose';
 
 export interface UpgradeModel {
   title: string;
   price: number;
+  _id: string | Types.ObjectId;
 }
 
 const upgradeSchema = new Schema<UpgradeModel>({
