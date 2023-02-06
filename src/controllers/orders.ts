@@ -59,7 +59,7 @@ export const getOrder: RequestHandler = async (req, res, next) => {
 
 export const addOrder: RequestHandler = async (req, res, next) => {
   try {
-    const { meals, upgrades, comments } = req.body as OrderModel;
+    const { meals, upgrades, comments, method } = req.body as OrderModel;
 
     const user = await User.findById(req.userId);
 
@@ -120,6 +120,7 @@ export const addOrder: RequestHandler = async (req, res, next) => {
       upgrades: upgrades,
       amountToPay: totalPayAmount,
       comments: comments,
+      method: method,
       client: req.userId,
       isDelivered: false,
     });
