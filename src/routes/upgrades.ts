@@ -10,9 +10,9 @@ import { isAuth } from '../middlewares/isAuth';
 
 const router = Router();
 
-router.get('/', getUpgrades);
+router.get('/', isAuth, getUpgrades);
 
-router.get('/:upgradeId', getUpgrade);
+router.get('/:upgradeId', isAuth, getUpgrade);
 
 router.post('/create-upgrade', isAuth, createUpgrade);
 

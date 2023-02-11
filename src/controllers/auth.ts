@@ -73,6 +73,7 @@ export const signup: RequestHandler = async (req, res, next) => {
         firstName: firstName,
         lastName: lastName,
         phoneNumber: phoneNumber,
+        address: result.address,
         userId: result._id.toString(),
       },
       process.env.SECRET!,
@@ -85,6 +86,7 @@ export const signup: RequestHandler = async (req, res, next) => {
         firstName: firstName,
         lastName: lastName,
         phoneNumber: phoneNumber,
+        address: result.address,
         userId: result._id.toString(),
       },
       process.env.SECRET!,
@@ -95,6 +97,11 @@ export const signup: RequestHandler = async (req, res, next) => {
       message: 'Signup Successful',
       access_token: access_token,
       refresh_token: refresh_token,
+      email: result.email,
+      firstName: result.firstName,
+      lastName: result.lastName,
+      phoneNumber: result.phoneNumber,
+      address: result.address,
     });
   } catch (error) {
     next(error);
@@ -149,6 +156,7 @@ export const signin: RequestHandler = async (req, res, next) => {
         firstName: loadedUser.firstName,
         lastName: loadedUser.lastName,
         phoneNumber: loadedUser.phoneNumber,
+        address: loadedUser.address,
         userId: loadedUser._id.toString(),
       },
       process.env.SECRET!,
@@ -161,6 +169,7 @@ export const signin: RequestHandler = async (req, res, next) => {
         firstName: loadedUser.firstName,
         lastName: loadedUser.lastName,
         phoneNumber: loadedUser.phoneNumber,
+        address: loadedUser.address,
         userId: loadedUser._id.toString(),
       },
       process.env.SECRET!,
@@ -170,6 +179,11 @@ export const signin: RequestHandler = async (req, res, next) => {
     return res.status(200).json({
       access_token: access_token,
       refresh_token: refresh_token,
+      email: loadedUser.email,
+      firstName: loadedUser.firstName,
+      lastName: loadedUser.lastName,
+      phoneNumber: loadedUser.phoneNumber,
+      address: loadedUser.address,
     });
   } catch (error) {
     next(error);
@@ -178,19 +192,21 @@ export const signin: RequestHandler = async (req, res, next) => {
 
 export const refreshAccessToken: RequestHandler = async (req, res, next) => {
   try {
-    const { refresh_token } = req.body as { refresh_token: string };
+    const { refreshToken } = req.body as { refreshToken: string };
 
-    if (!refresh_token) {
+    if (!refreshToken) {
       const error: ErrorResponse = {
-        message: 'Unauthorized',
-        name: 'Unauthorized',
-        status: 401,
+        message: 'No refresh token found',
+        name: 'Not Found',
+        status: 404,
       };
       throw error;
     }
 
+    let verifiedUserId;
+
     await verify(
-      refresh_token,
+      refreshToken,
       process.env.SECRET as string,
       (error, decoded) => {
         if (error) {
@@ -202,26 +218,60 @@ export const refreshAccessToken: RequestHandler = async (req, res, next) => {
           throw error;
         }
 
-        const { email, firstName, lastName, phoneNumber, userId } =
-          decoded as JwtPayload;
+        const { userId } = decoded as JwtPayload;
 
-        const access_token = sign(
-          {
-            email: email,
-            firstName: firstName,
-            lastName: lastName,
-            phoneNumber: phoneNumber,
-            userId: userId,
-          },
-          process.env.SECRET as string,
-          {
-            expiresIn: '1hr',
-          }
-        );
-
-        return res.status(200).json({ access_token: access_token });
+        verifiedUserId = userId;
       }
     );
+
+    const user = await User.findById(verifiedUserId);
+
+    if (!user) {
+      const error: ErrorResponse = {
+        message: 'No user found',
+        name: 'Not found',
+        status: 404,
+      };
+      throw error;
+    }
+
+    const access_token = sign(
+      {
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        phoneNumber: user.phoneNumber,
+        address: user.address,
+        userId: verifiedUserId,
+      },
+      process.env.SECRET as string,
+      {
+        expiresIn: '1hr',
+      }
+    );
+
+    const refresh_token = sign(
+      {
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        phoneNumber: user.phoneNumber,
+        address: user.address,
+        userId: verifiedUserId,
+      },
+      process.env.SECRET as string,
+      { expiresIn: '365d' }
+    );
+
+    return res.status(200).json({
+      access_token: access_token,
+      refresh_token: refresh_token,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      phoneNumber: user.phoneNumber,
+      address: user.address,
+    });
   } catch (error) {
     next(error);
   }
